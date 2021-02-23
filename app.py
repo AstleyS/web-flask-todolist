@@ -30,6 +30,24 @@ def index():
         todos = Todo.query.order_by(Todo.date_created).all()
         return render_template('todo/index.html', todos = todos)
 
+@app.route('/update/<int:id>', methods = ['POST', 'GET'])
+def update(id):
+    todo = Todo.query.get_or_404(id)
+
+    if request.method == 'POST':
+    
+        todo.content = request.form['content']
+        
+        try:
+            db.session.commit()
+            return redirect('/')
+        except:
+            return 'Error updating todo'
+        
+    else:
+        return render_template('todo/update.html', todo = todo)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
