@@ -15,7 +15,7 @@ class Todo(db.Model):
         return f'<Todo {self.id}>'
 
 @app.route('/', methods = ['POST', 'GET'])
-def index():
+def addTodo():
     if request.method == 'POST':
         content = request.form['content']
         new_todo = Todo(content = content) 
@@ -30,14 +30,25 @@ def index():
         todos = Todo.query.order_by(Todo.date_created).all()
         return render_template('todo/index.html', todos = todos)
 
+@app.route('/delete/<int:id>')
+def deleteTodo(id):
+    todo = Todo.query.get_or_404(id)
+
+    try:
+        db.session.delete(todo)
+        db.session.commit()
+        return redirect('/')
+    except:
+        return 'Error deleting the todo'
+
 @app.route('/update/<int:id>', methods = ['POST', 'GET'])
-def update(id):
+def updateTodo(id):
     todo = Todo.query.get_or_404(id)
 
     if request.method == 'POST':
     
         todo.content = request.form['content']
-        
+         
         try:
             db.session.commit()
             return redirect('/')
