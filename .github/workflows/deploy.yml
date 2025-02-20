@@ -11,6 +11,8 @@ jobs:
 
     env:
       HEROKU_APP_NAME: web-flask-todolist
+      HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
+      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
     steps:
       # Step 1: Checkout the repository
@@ -33,20 +35,27 @@ jobs:
       - name: Install Heroku CLI
         run: curl https://cli-assets.heroku.com/install.sh | sh
 
-      # Step 5: Log in to Heroku
+       # Step 5: Log in to Heroku
       - name: Log in to Heroku
-        env:
+        uses: actions/heroku-login@v1
+        with:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: heroku auth:token && echo $HEROKU_API_KEY | heroku auth:login --with-token
+          HEROKU_APP_NAME: ${{ env.HEROKU_APP_NAME }}
+          HEROKU_EMAIL: ${{ env.HEROKU_EMAIL }}
+          justlogin: true
 
-      # Step 6: Add Heroku as a Git remote
+      # Step 6: Verify Heroku login
+      - name: Verify Heroku login
+        run: heroku auth:whoami
+
+      # Step 7: Add Heroku as a Git remote
       - name: Add Heroku remote
         run: git remote add heroku https://git.heroku.com/${{ env.HEROKU_APP_NAME }}.git
 
-      # Step 7: Deploy to Heroku
+      # Step 8: Deploy to Heroku
       - name: Push to Herokud
         run: git push heroku main
 
-      # Step 8: Confirm successful deployment
+      # Step 9: Confirm successful deployment
       - name: Verify Deployment
         run: heroku open -a ${{ env.HEROKU_APP_NAME }}
