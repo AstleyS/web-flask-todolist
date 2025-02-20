@@ -63,6 +63,7 @@ jobs:
       # Step 8: Commit and push changes to Heroku
       - name: Commit and push changes
         run: |
+          rsync -a --exclude='.git' . ${{ env.HEROKU_APP_NAME }}
           cd ${{ env.HEROKU_APP_NAME }}
           git add .
           git commit -m "Deploy to Heroku"
