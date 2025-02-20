@@ -4,8 +4,13 @@ import os
 
 app = Flask(__name__)
 
-DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///todo.db')
+# Get the database URL from the environment, default to SQLite
+DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:////tmp/todo.db')
+
+# Configure the database
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+# Ensure no tracking overhead (optional optimization)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize the database
 db.init_app(app)
@@ -41,25 +46,18 @@ def deleteTodo(id):
     except Exception as e:
         return f'Error deleting todo: {e}'
 
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
-
 @app.route('/update/<int:id>', methods=['POST', 'GET'])
 def updateTodo(id):
     todo = Todo.query.get_or_404(id)
-    logging.debug(f'Todo object retrieved: {todo}')
+    print(todo)
 
     if request.method == 'POST':
         todo.content = request.form['content']
-        logging.debug(f'Updated content: {todo.content}')
 
         try:
             db.session.commit()
             return redirect('/')
         except Exception as e:
-            logging.error(f'Error updating todo: {e}')
             return f'Error updating todo: {e}'
 
     return render_template('todo/update.html', todo=todo)
