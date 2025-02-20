@@ -50,25 +50,29 @@ jobs:
       - name: Verify Heroku login
         run: heroku auth:whoami
 
+      # Step 7: Configure Git
       - name: Configure Git
         run: |
           git config --global user.email ${{ secrets.HEROKU_EMAIL }}
           git config --global user.name "AstleyS"
+          git config --global init.defaultBranch main
+          git config --global pull.rebase false
 
-      # Step 7: Clone Heroku repository
-      - name: Clone Heroku repository
-        run: |
-          git clone https://git.heroku.com/${{ env.HEROKU_APP_NAME }}.git
+      # Step 8: Add Heroku remote
+      - name: Add Heroku remote
+        run: git remote add heroku https://git.heroku.com/${{ env.HEROKU_APP_NAME }}.git
 
-      # Step 8: Commit and push changes to Heroku
+      # Step 9: Pull latest changes from Heroku
+      - name: Pull latest changes from Heroku
+        run: git pull heroku main --allow-unrelated-histories
+
+      # Step 10: Commit and push changes to Heroku
       - name: Commit and push changes
         run: |
-          rsync -a --exclude='.git' . ${{ env.HEROKU_APP_NAME }}
-          cd ${{ env.HEROKU_APP_NAME }}
           git add .
-          git commit -m "Deploy to Heroku"
+          git commit -m "Deploy to Heroku" || echo "No changes to commit"
           git push heroku main
 
-      # Step 9: Confirm successful deployment
+      # Step 11: Confirm successful deployment
       - name: Verify Deployment
         run: heroku open -a ${{ env.HEROKU_APP_NAME }}
