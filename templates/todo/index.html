@@ -1,40 +1,44 @@
 {% extends 'base.html' %}
 
-{% block head %}
-<title>Learning Flask</title>
-{% endblock %}
+{% block title %}Todo List{% endblock %}
 
 {% block body %}
-<div class="content">
-    <h1>Todo Master</h1>
-    {% if todos|length < 1 %}
-        <h4>There are no todos. Create one below!</h4>
-    {% else %}
-        <table>
-            <tr>
-                <th>Todo</th>
-                <th>Added</th>
+<div class="todo-container">
+
+    <h1 class="todo-text">Todo</h1>
+    
+    {% if todos %}
+    <table>
+        <thead>
+            <tr class="todo-header">
+                <th>Task</th>
+                <th>Created On</th>
                 <th>Actions</th>
             </tr>
-            <tr>
+            </thead>
+            <tbody>
                 {% for todo in todos %}
-                    <td>{{ todo.content }}</td>
-                    <td>{{ todo.date_created.date() }}</td>
-                    <td>
-                        <a href="/delete/{{ todo.id }}">Delete</a>
-                        <br>
-                        <a href="/update/{{ todo.id }}">Update</a>
+                <tr>
+                    <td class="todo-content">{{ todo.content }}</td>
+                    <td class="todo-date">{{ todo.date_created.strftime('%Y-%m-%d') }}</td>
+                    <td class="todo-actions">
+                        <a href="{{ url_for('updateTodo', id=todo.id) }}">Edit</a> |
+                        <a href="{{ url_for('deleteTodo', id=todo.id) }}" onclick="return confirm('Are you sure?')">Delete</a>
                     </td>
+                </tr>
                 {% endfor %}
-            </tr>
+            </tbody>
         </table>
+        {% else %}
+        <p class="todo-empty">No todos found. Start by adding one below!</p>
     {% endif %}
+
     <div class="form">
-        <form action="/" method="POST">
-            <input type="text" name="content" id="content">
+        <form method="POST" action="/">
+            <input type="text" name="content" placeholder="Add a new todo" required>
             <input type="submit" value="Add Todo">
         </form>
-    </div>
-
 </div>
+
 {% endblock %}
+</div>
