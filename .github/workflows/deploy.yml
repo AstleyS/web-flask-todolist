@@ -3,33 +3,50 @@ name: Deploy to Heroku
 on:
   push:
     branches:
-      - main
+      - main  # Trigger the workflow on pushes to the main branch
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use the latest Ubuntu environment
+
+    env:
+      HEROKU_APP_NAME: web-flask-todolist
 
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
+      # Step 2: Set up Python environment
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.9'  # Use Python 3.9
 
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # Step 4: Install Heroku CLI
       - name: Install Heroku CLI
         run: curl https://cli-assets.heroku.com/install.sh | sh
 
+      # Step 5: Log in to Heroku
       - name: Log in to Heroku
-        run: echo ${{ secrets.HEROKU_API_KEY }} | heroku auth:token
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku auth:token && echo $HEROKU_API_KEY | heroku auth:login --with-token
 
-      - name: Deploy to Heroku
-        run: git remote add heroku https://git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
-      - name: Push to Heroku
+      # Step 6: Add Heroku as a Git remote
+      - name: Add Heroku remote
+        run: git remote add heroku https://git.heroku.com/${{ env.HEROKU_APP_NAME }}.git
+
+      # Step 7: Deploy to Heroku
+      - name: Push to Herokud
         run: git push heroku main
+
+      # Step 8: Confirm successful deployment
+      - name: Verify Deployment
+        run: heroku open -a ${{ env.HEROKU_APP_NAME }}
