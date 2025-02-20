@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 
 # Get the database URL from the environment, default to SQLite
-DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:////tmp/todo.db')
+DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///todo.db')
 
 # Configure the database
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
