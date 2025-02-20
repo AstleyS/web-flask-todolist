@@ -21,7 +21,6 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for all branches and tags
 
-
       # Step 2: Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -38,26 +37,32 @@ jobs:
       - name: Install Heroku CLI
         run: curl https://cli-assets.heroku.com/install.sh | sh
 
-       # Step 5: Log in to Heroku
+      # Step 5: Log in to Heroku
       - name: Log in to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-          HEROKU_APP_NAME: ${{ env.HEROKU_APP_NAME }}
-          HEROKU_EMAIL: ${{ env.HEROKU_EMAIL }}
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ env.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
           justlogin: true
 
       # Step 6: Verify Heroku login
       - name: Verify Heroku login
         run: heroku auth:whoami
 
-      # Step 7: Add Heroku as a Git remote
-      - name: Add Heroku remote
-        run: git remote add heroku https://git.heroku.com/${{ env.HEROKU_APP_NAME }}.git
+      # Step 7: Clone Heroku repository
+      - name: Clone Heroku repository
+        run: |
+          git clone https://git.heroku.com/${{ env.HEROKU_APP_NAME }}.git
+          cd ${{ env.HEROKU_APP_NAME }}
 
-      # Step 8: Deploy to Heroku
-      - name: Push to Heroku
-        run: git push heroku main
+      # Step 8: Commit and push changes to Heroku
+      - name: Commit and push changes
+        run: |
+          cd ${{ env.HEROKU_APP_NAME }}
+          git add .
+          git commit -m "Deploy to Heroku"
+          git push heroku main
 
       # Step 9: Confirm successful deployment
       - name: Verify Deployment
