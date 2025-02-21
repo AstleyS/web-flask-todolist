@@ -11,6 +11,7 @@ jobs:
 
     env:
       HEROKU_APP_NAME: web-flask-todolist
+      GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
       HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
       HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
@@ -53,8 +54,8 @@ jobs:
       # Step 7: Configure Git
       - name: Configure Git
         run: |
-          git config --global user.email ${{ secrets.HEROKU_EMAIL }}
-          git config --global user.name "AstleyS"
+          git config --global user.email ${{ env.HEROKU_EMAIL }}
+          git config --global user.name ${{ env.GIT_USERNAME }}
           git config --global init.defaultBranch main
           git config --global pull.rebase false
 
